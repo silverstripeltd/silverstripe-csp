@@ -1,4 +1,8 @@
 node_modules
 /vendor/
 .DS_Store
-
+/.idea/
+/assets/
+/app/
+composer.lock
+/resources/

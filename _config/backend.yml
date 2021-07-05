@@ -1,0 +1,4 @@
+SilverStripe\Core\Injector\Injector:
+  Silverstripe\CSP\Requirements\CSPBackend:
+    properties:
+      AssetHandler: '%$SilverStripe\Assets\Storage\GeneratedAssetHandler'

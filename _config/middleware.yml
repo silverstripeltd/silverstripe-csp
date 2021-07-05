@@ -1,0 +1,13 @@
+# Middleware
+---
+Name: csp_requestprocessors
+After:
+  - requestprocessors
+---
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\Control\Director:
+    properties:
+      Middlewares:
+        SilverstripeCSPMiddleware: '%$SilverstripeCSPMiddleware'
+  SilverstripeCSPMiddleware:
+    class: 'Silverstripe\CSP\CSPMiddleware'

@@ -1,0 +1,6 @@
+---
+Name: csp_nonce
+---
+SilverStripe\Core\Injector\Injector:
+  Silverstripe\CSP\NonceGenerator:
+    class: Silverstripe\CSP\RandomString

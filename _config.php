@@ -1,4 +1,8 @@
 <?php
 
-// You need this file if you don't have anything in the _config folder. If that folder exists
-// and is not empty then you can delete this file.
+use SilverStripe\Core\Injector\Injector;
+use Silverstripe\CSP\Requirements\CSPBackend;
+use SilverStripe\View\Requirements;
+
+$backend = Injector::inst()->get(CSPBackend::class);
+Requirements::set_backend($backend);

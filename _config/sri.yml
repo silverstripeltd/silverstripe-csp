@@ -1,0 +1,6 @@
+---
+Name: csp_sri
+---
+SilverStripe\ORM\DataObject:
+  extensions:
+    - Silverstripe\CSP\Requirements\DevBuildExtension
