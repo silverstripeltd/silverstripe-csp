@@ -21,7 +21,7 @@ trait SubresourceIntegrity
         foreach ($scripts as $id => $script) {
             $sri = SRIRecord::findOrCreate($id);
 
-            if ($sri->hasIntegrity()) {
+            if ($sri && $sri->hasIntegrity()) {
                 $script['integrity'] = $script['integrity'] ?? $sri->Integrity;
             }
 
