@@ -9,6 +9,7 @@ use SilverStripe\ORM\DataObject;
 /**
  * @property string File
  * @property string Integrity
+ * @property string ModifiedTimec
  */
 class SRIRecord extends DataObject
 {
@@ -18,7 +19,8 @@ class SRIRecord extends DataObject
 
     private static array $db = [
         'File' => 'Varchar(255)',
-        'Integrity'  => 'Varchar(255)'
+        'Integrity'  => 'Varchar(255)',
+        'ModifiedTime'  => 'Varchar(255)',
     ];
 
     private static array $summary_fields = [
@@ -30,9 +32,18 @@ class SRIRecord extends DataObject
         'File' => true
     ];
 
-    public static function findOrCreate(string $file): SRIRecord
+    public static function findOrCreate(string $file): ?SRIRecord
     {
-        $record = SRIRecord::get()->find('File', $file);
+        $mTime = self::getFileModifiedTime($file);
+
+        if (!$mTime) {
+            return null;
+        }
+
+        $record = SRIRecord::get()->filter([
+            'File' => $file,
+            'ModifiedTime' => $mTime,
+        ]);
 
         if (!$record || !$record->isInDB()) {
             $record = SRIRecord::create(['File' => $file]);
@@ -40,6 +51,17 @@ class SRIRecord extends DataObject
         }
 
         return $record;
+    }
+
+    private static function getFileModifiedTime(string $file): ?string
+    {
+        $absolutePath = Director::getAbsFile($file);
+
+        if (!is_file($absolutePath)) {
+            return null;
+        }
+
+        return filemtime($absolutePath);
     }
 
     public function hasIntegrity(): bool
