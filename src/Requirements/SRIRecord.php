@@ -43,7 +43,7 @@ class SRIRecord extends DataObject
         $record = SRIRecord::get()->filter([
             'File' => $file,
             'ModifiedTime' => $mTime,
-        ]);
+        ])->first();
 
         if (!$record || !$record->isInDB()) {
             $record = SRIRecord::create(['File' => $file]);
