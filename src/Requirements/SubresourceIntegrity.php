@@ -2,6 +2,8 @@
 
 namespace Silverstripe\CSP\Requirements;
 
+use Silverstripe\CSP\CSPMiddleware;
+
 trait SubresourceIntegrity
 {
     public function getJavascript(): array
@@ -16,6 +18,10 @@ trait SubresourceIntegrity
 
     private function addIntegrityToArray(array $scripts): array
     {
+        if (CSPMiddleware::config()->get('sri_enabled') !== true) {
+            return $scripts;
+        }
+
         $results = [];
 
         foreach ($scripts as $id => $script) {
