@@ -26,15 +26,13 @@ class CMS extends Policy
             ->addDirective(Directive::OBJECT, Keyword::NONE)
             ->addDirective(Directive::SCRIPT, [
                 Keyword::SELF,
+                Keyword::UNSAFE_INLINE,
+                Keyword::UNSAFE_EVAL,
             ])
             ->addDirective(Directive::STYLE, [
                 Keyword::SELF,
                 Keyword::UNSAFE_INLINE,
             ]);
-
-        if (Director::isDev()) {
-            $this->reportOnly();
-        }
     }
 
     public function shouldBeApplied(HTTPRequest $request, HTTPResponse $response): bool

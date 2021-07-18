@@ -112,7 +112,7 @@ abstract class Policy
     {
         $this->configure();
 
-        $reportOnly = Environment::getEnv('CSP_REPORT_ONLY') === true;
+        $reportOnly = Environment::getEnv('CSP_REPORT_ONLY') === 'enabled';
 
         $headerName = $this->reportOnly || $reportOnly
             ? 'Content-Security-Policy-Report-Only'

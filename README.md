@@ -67,7 +67,7 @@ Silverstripe\CSP\CSPMiddleware:
 ```
 In the above we've added it to be checked after the CMS policy that is included by default.
 
-To make the policy **report only** you can either add the env var `CSP_REPORT_ONLY=true` or code it in your policy, for example:
+To make the policy **report only** you can either add the env var `CSP_REPORT_ONLY='enabled'` or code it in your policy, for example:
 ```php
 public function configure(): void
 {
