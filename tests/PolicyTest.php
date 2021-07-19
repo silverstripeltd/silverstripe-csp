@@ -31,7 +31,7 @@ class PolicyTest extends SapphireTest
         $policy->applyTo($response);
         $nonce = NonceGenerator::get();
         $expected = <<<TXT
-        base-uri 'self';connect-src 'self';default-src 'self';form-action 'self';img-src 'self';media-src 'self';object-src 'none';script-src 'self' 'nonce-$nonce';style-src 'self' 'nonce-$nonce';upgrade-insecure-requests
+        base-uri 'self';connect-src 'self';default-src 'self';form-action 'self';img-src 'self';media-src 'self';object-src 'none';script-src 'self' 'nonce-$nonce';style-src 'self' 'nonce-$nonce';font-src 'self';upgrade-insecure-requests
         TXT;
         $this->assertEquals($expected, $response->getHeader('content-security-policy'));
         $this->assertEquals('Basic', $response->getHeader('csp-name'));
@@ -55,7 +55,7 @@ class PolicyTest extends SapphireTest
         $policy = Injector::inst()->get(CMS::class);
 
         Environment::setEnv('CSP_REPORT_TO', 'https://example.com');
-        Environment::setEnv('CSP_REPORT_ONLY', true);
+        Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
         $policy->applyTo($response);
         $this->assertContains('report-to https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
         $this->assertContains('report-uri https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));

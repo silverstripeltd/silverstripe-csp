@@ -25,6 +25,7 @@ class Basic extends Policy
             ->addDirective(Directive::OBJECT, Keyword::NONE)
             ->addDirective(Directive::SCRIPT, Keyword::SELF)
             ->addDirective(Directive::STYLE, Keyword::SELF)
+            ->addDirective(Directive::FONT, Keyword::SELF)
             ->addNonceForDirective(Directive::SCRIPT)
             ->addNonceForDirective(Directive::STYLE)
             ->addDirective(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
