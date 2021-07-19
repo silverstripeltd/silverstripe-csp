@@ -3,16 +3,24 @@
 namespace Silverstripe\CSP;
 
 use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\View\TemplateGlobalProvider;
 
 /**
  * This generates the nonce's, you can implement your own version otherwise by default
  * we're using the random string implementation
  */
-abstract class NonceGenerator
+abstract class NonceGenerator implements TemplateGlobalProvider
 {
     use Injectable;
 
     private ?string $nonce = null;
+
+    public static function get_template_global_variables()
+    {
+        return [
+            'Nonce' => 'get',
+        ];
+    }
 
     abstract public function generate(): string;
 
