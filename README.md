@@ -1,6 +1,8 @@
 # Silverstripe Content Security Policy
 
-Make your site _like_ super secure with CSP headers and SRI tags on your scripts
+Make your site _like_ super secure with CSP headers and SRI tags on your scripts.
+
+This module is not currently supported, it will frequently change and break APIs.
 
 ## Requirements
 
@@ -10,7 +12,7 @@ Make your site _like_ super secure with CSP headers and SRI tags on your scripts
 First you install it, then you configure it. Like lego!
 
 ```
-composer require adrhumphreys/silverstripe-csp
+composer require silverstripeltd/silverstripe-csp
 ```
 
 ## Documentation

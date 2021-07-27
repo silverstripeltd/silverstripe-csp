@@ -1,5 +1,5 @@
 {
-    "name": "adrhumphreys/silverstripe-csp",
+    "name": "silverstripeltd/silverstripe-csp",
     "description": "A module for CSP headers in Silverstripe.",
     "type": "silverstripe-vendormodule",
     "keywords": [
@@ -9,6 +9,12 @@
         "content security policy"
     ],
     "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Adrian Humphreys",
+            "email": "adrhumphreys@gmail.com"
+        }
+    ],
     "require": {
         "silverstripe/framework": "^4",
         "silverstripe/cms": "^4"
