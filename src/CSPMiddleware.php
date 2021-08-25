@@ -26,7 +26,7 @@ class CSPMiddleware implements HTTPMiddleware
         $response = $delegate($request);
 
         // Skip if we've not built the database yet or on CLI requests (e.g. first dev/build)
-        if (!DatabaseAdmin::lastBuilt() || Director::is_cli()) {
+        if (Director::is_cli()) {
             return $response;
         }
 
