@@ -15,6 +15,7 @@ class GoogleTagManager implements Fragment
     public static function addTo(Policy $policy): void
     {
         self::undocumented($policy);
+        self::enableGTM($policy);
         self::customJavascriptVars($policy);
         self::previewMode($policy);
         self::analytics($policy);
@@ -30,7 +31,21 @@ class GoogleTagManager implements Fragment
     {
         $policy
             ->addDirective(Directive::FRAME, '*.doubleclick.net')
-            ->addDirective(Directive::CONNECT, '*.doubleclick.net');
+            ->addDirective(Directive::CONNECT, '*.doubleclick.net')
+            ->addDirective(Directive::IMG, '*.doubleclick.net');
+    }
+
+    /*
+     * https://developers.google.com/tag-manager/web/csp#enabling_the_google_tag_manager_snippet
+     */
+    public static function enableGTM(Policy $policy): void
+    {
+        $policy
+            // Preferred approach is nonce the GoogleTagManager gtag.js script
+            // however to provide a default backup for other digital marketing tools like Adobe tag manager
+            // which can call gtag.js script without applying a nonce, whitelisting the GTM domain is required.
+            ->addDirective(Directive::SCRIPT, 'https://www.googletagmanager.com')
+            ->addDirective(Directive::IMG, 'https://www.googletagmanager.com');
     }
 
     /*
