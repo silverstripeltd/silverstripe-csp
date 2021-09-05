@@ -13,6 +13,10 @@ class YouTube implements Fragment
     public static function addTo(Policy $policy): void
     {
         $policy
+            // This is a CDN for youtube static assets
+            ->addDirective(Directive::IMG, [
+                '*.ytimg.com',
+            ])
             ->addDirective(Directive::SCRIPT, [
                 // The main youtube domain
                 'www.youtube.com',
