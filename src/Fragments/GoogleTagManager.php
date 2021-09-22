@@ -45,6 +45,7 @@ class GoogleTagManager implements Fragment
             // however to provide a default backup for other digital marketing tools like Adobe tag manager
             // which can call gtag.js script without applying a nonce, whitelisting the GTM domain is required.
             ->addDirective(Directive::SCRIPT, 'https://www.googletagmanager.com')
+            ->addDirective(Directive::FRAME, 'https://www.googletagmanager.com')
             ->addDirective(Directive::IMG, 'https://www.googletagmanager.com');
     }
 
