@@ -271,7 +271,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'script-src www.youtube.com s.ytimg.com player.vimeo.com;frame-src *.youtube.com player.vimeo.com;child-src player.vimeo.com',
+            'img-src *.ytimg.com;script-src www.youtube.com s.ytimg.com player.vimeo.com;frame-src *.youtube.com player.vimeo.com;child-src player.vimeo.com',
             $response->getHeader('content-security-policy')
         );
     }
