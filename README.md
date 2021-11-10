@@ -80,6 +80,16 @@ public function configure(): void
 }
 ```
 
+## Google Tag Manager / Adservices whitelist
+Google uses localised regional domains for visitors for image tracker loading, which can pile up report violations with `google.com|.co.nz|.com.au` etc in your reporting tool.
+To resolve this and rather than specifying all of Google's listed support domains (see https://www.google.com/supported_domains)
+A white list config can be set to the GTM fragment to whitelist all `https:` URLs on the `img-src` directive, for example:
+```yaml
+Silverstripe\CSP\Fragments\GoogleTagManager:
+  whitelist_google_regional_domains: true
+```
+> See also ImagesOverHTTPs::class for more basic cover of https images.
+
 ## SRI
 We also support SRI in this module, you can enable this via yaml:
 ```yaml
