@@ -2,6 +2,7 @@
 
 namespace Silverstripe\CSP\Fragments;
 
+use SilverStripe\Core\Config\Configurable;
 use Silverstripe\CSP\Directive;
 use Silverstripe\CSP\Keyword;
 use Silverstripe\CSP\Policies\Policy;
@@ -12,6 +13,10 @@ use Silverstripe\CSP\Scheme;
  */
 class GoogleTagManager implements Fragment
 {
+    use Configurable;
+
+    private static bool $whitelist_google_regional_domains = false;
+
     public static function addTo(Policy $policy): void
     {
         self::undocumented($policy);
@@ -25,14 +30,33 @@ class GoogleTagManager implements Fragment
     }
 
     /*
-     * These were ones not in the docs and had issues popping up
+     * CSP reported directive URIs that were not covered in the google docs
+     * and were continually over reporting CSP URI infringements.
+     *
+     * https://developers.google.com/web/fundamentals/security/csp#implementation_details
      */
     public static function undocumented(Policy $policy): void
     {
         $policy
-            ->addDirective(Directive::FRAME, '*.doubleclick.net')
-            ->addDirective(Directive::CONNECT, '*.doubleclick.net')
-            ->addDirective(Directive::IMG, '*.doubleclick.net');
+            ->addDirective(Directive::FRAME,
+                [
+                    'https://*.doubleclick.net',
+                    'https://stats.g.doubleclick.net',
+                    'http://bid.g.doubleclick.net',
+                ]
+            )
+            ->addDirective(Directive::CONNECT, [
+                'https://adservice.google.com',
+                'https://www.google.com',
+                'https://*.doubleclick.net',
+            ]);
+
+        // Google uses localised regional endpoint domains for their services
+        // if seeing regional google domain report violations
+        // setting this config will whitelist all img-src to allow 'https:'.
+        if (self::config()->get('whitelist_google_regional_domains') === true) {
+            $policy->addDirective(Directive::IMG, Scheme::HTTPS);
+        }
     }
 
     /*
