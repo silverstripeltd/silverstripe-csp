@@ -42,7 +42,6 @@ class GoogleTagManager implements Fragment
                 [
                     'https://*.doubleclick.net',
                     'https://stats.g.doubleclick.net',
-                    'http://bid.g.doubleclick.net',
                 ]
             )
             ->addDirective(Directive::CONNECT, [
