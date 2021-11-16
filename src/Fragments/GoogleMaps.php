@@ -1,14 +1,15 @@
 <?php
 
-namespace App\ContentSecurity\Fragments;
+namespace Silverstripe\CSP\Fragments;
 
 use Silverstripe\CSP\Directive;
-use Silverstripe\CSP\Fragments\Fragment;
 use Silverstripe\CSP\Policies\Policy;
 
 /*
  * Allows execution of Google Maps API related resources
- * Nonce on the https://maps.google.com/maps/api/js URL is required before using this fragment.
+ * Depending on how you include GoogleMaps API you will need either:
+ *  - inline script: requires nonce.
+ *  - node package in build-chain via dynamic calls: whitelist 'https://maps.google.com' via 'script-src' directive.
  *
  * https://content-security-policy.com/examples/google-maps/
  */
