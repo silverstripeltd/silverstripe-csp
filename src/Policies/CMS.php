@@ -48,7 +48,7 @@ class CMS extends Policy
     {
         $url = $request->getURL();
 
-        if(strpos($url, 'admin') === 0) {
+        if (strpos($url, 'admin') === 0) {
             return true;
         }
 

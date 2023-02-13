@@ -6,7 +6,7 @@ This module is not currently supported, it will frequently change and break APIs
 
 ## Requirements
 
-* SilverStripe ^4 (Developed against 4.7 no guarantees to older versions)
+* SilverStripe ^5 (Developed against 4.7 no guarantees to older versions)
 
 ## Installation
 First you install it, then you configure it. Like lego!

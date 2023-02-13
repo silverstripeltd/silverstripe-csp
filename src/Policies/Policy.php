@@ -187,8 +187,7 @@ abstract class Policy
 
     protected function sanitizeValue(string $value): string
     {
-        if (
-            $this->isKeyword($value)
+        if ($this->isKeyword($value)
             || $this->isHash($value)
         ) {
             return "'{$value}'";

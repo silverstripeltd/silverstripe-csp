@@ -38,7 +38,8 @@ class GoogleTagManager implements Fragment
     public static function undocumented(Policy $policy): void
     {
         $policy
-            ->addDirective(Directive::FRAME,
+            ->addDirective(
+                Directive::FRAME,
                 [
                     'https://*.doubleclick.net',
                     'https://stats.g.doubleclick.net',

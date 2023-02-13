@@ -6,3 +6,5 @@ node_modules
 /app/
 composer.lock
 /resources/
+.phpunit.result.cache
+public/

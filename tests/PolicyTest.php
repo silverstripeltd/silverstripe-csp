@@ -20,6 +20,7 @@ use SilverStripe\Dev\SapphireTest;
 
 /*
  * We can't test middleware with silverstripe... so we're testing the policy itself (mainly)
+ * @phpcs:disable Generic.Files.LineLength.TooLong
  */
 class PolicyTest extends SapphireTest
 {
@@ -57,14 +58,14 @@ class PolicyTest extends SapphireTest
         Environment::setEnv('CSP_REPORT_TO', 'https://example.com');
         Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
         $policy->applyTo($response);
-        $this->assertContains('report-to https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
-        $this->assertContains('report-uri https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+        $this->assertStringContainsString('report-to https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+        $this->assertStringContainsString('report-uri https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
 
         $policy->reportTo('https://silverstripe.com');
         $response->removeHeader('Content-Security-Policy-Report-Only');
         $policy->applyTo($response);
-        $this->assertContains('report-to https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
-        $this->assertContains('report-uri https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+        $this->assertStringContainsString('report-to https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+        $this->assertStringContainsString('report-uri https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
     }
 
     public function testIsCanUseMultipleValuesForTheSameDirective(): void
