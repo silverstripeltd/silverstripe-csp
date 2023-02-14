@@ -6,33 +6,33 @@ use ReflectionClass;
 
 abstract class Directive
 {
-    const BASE = 'base-uri';
-    const BLOCK_ALL_MIXED_CONTENT = 'block-all-mixed-content';
-    const CHILD = 'child-src';
-    const CONNECT = 'connect-src';
-    const DEFAULT = 'default-src';
-    const FONT = 'font-src';
-    const FORM_ACTION = 'form-action';
-    const FRAME = 'frame-src';
-    const FRAME_ANCESTORS = 'frame-ancestors';
-    const IMG = 'img-src';
-    const MANIFEST = 'manifest-src';
-    const MEDIA = 'media-src';
-    const OBJECT = 'object-src';
-    const PLUGIN = 'plugin-types';
-    const PREFETCH = 'prefetch-src';
-    const REPORT = 'report-uri';
-    const REPORT_TO = 'report-to';
-    const SANDBOX = 'sandbox';
-    const SCRIPT = 'script-src';
-    const SCRIPT_ATTR = 'script-src-attr';
-    const SCRIPT_ELEM = 'script-src-elem';
-    const STYLE = 'style-src';
-    const STYLE_ATTR = 'style-src-attr';
-    const STYLE_ELEM = 'style-src-elem';
-    const UPGRADE_INSECURE_REQUESTS = 'upgrade-insecure-requests';
-    const WEB_RTC = 'webrtc-src';
-    const WORKER = 'worker-src';
+    public const BASE = 'base-uri';
+    public const BLOCK_ALL_MIXED_CONTENT = 'block-all-mixed-content';
+    public const CHILD = 'child-src';
+    public const CONNECT = 'connect-src';
+    public const DEFAULT = 'default-src';
+    public const FONT = 'font-src';
+    public const FORM_ACTION = 'form-action';
+    public const FRAME = 'frame-src';
+    public const FRAME_ANCESTORS = 'frame-ancestors';
+    public const IMG = 'img-src';
+    public const MANIFEST = 'manifest-src';
+    public const MEDIA = 'media-src';
+    public const OBJECT = 'object-src';
+    public const PLUGIN = 'plugin-types';
+    public const PREFETCH = 'prefetch-src';
+    public const REPORT = 'report-uri';
+    public const REPORT_TO = 'report-to';
+    public const SANDBOX = 'sandbox';
+    public const SCRIPT = 'script-src';
+    public const SCRIPT_ATTR = 'script-src-attr';
+    public const SCRIPT_ELEM = 'script-src-elem';
+    public const STYLE = 'style-src';
+    public const STYLE_ATTR = 'style-src-attr';
+    public const STYLE_ELEM = 'style-src-elem';
+    public const UPGRADE_INSECURE_REQUESTS = 'upgrade-insecure-requests';
+    public const WEB_RTC = 'webrtc-src';
+    public const WORKER = 'worker-src';
 
     public static function isValid(string $directive): bool
     {
