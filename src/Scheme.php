@@ -4,9 +4,9 @@ namespace Silverstripe\CSP;
 
 abstract class Scheme
 {
-    const DATA = 'data:';
-    const HTTP = 'http:';
-    const HTTPS = 'https:';
-    const BLOB = 'blob:';
-    const WS = 'ws:';
+    public const DATA = 'data:';
+    public const HTTP = 'http:';
+    public const HTTPS = 'https:';
+    public const BLOB = 'blob:';
+    public const WS = 'ws:';
 }

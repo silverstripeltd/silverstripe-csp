@@ -19,7 +19,8 @@ class GoogleMaps implements Fragment
     {
          $policy
              ->addDirective(Directive::CONNECT, 'https://maps.googleapis.com')
-             ->addDirective(Directive::IMG,
+             ->addDirective(
+                 Directive::IMG,
                  [
                     'https://maps.gstatic.com',
                     'https://*.googleapis.com',
