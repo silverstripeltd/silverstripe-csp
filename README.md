@@ -45,7 +45,7 @@ class YouTube implements Fragment
 }
 ```
 
-If you need to add a new fragment or update an existing one please make a pull request to the repo. You've either found a potential issue for all our projects using this, or you're adding a new service which other project can benefit from
+If you need to add a new fragment or update an existing one please make a pull request to the repo. You've either found a potential issue for all our projects using this, or you're adding a new service which other projects can benefit from
 
 Adding fragments to your policy looks like this (in configure func from above):
 ```php
