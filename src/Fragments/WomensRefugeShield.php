@@ -13,11 +13,18 @@ class WomensRefugeShield implements Fragment
     public static function addTo(Policy $policy): void
     {
         $policy
-            ->addDirective(Directive::SCRIPT, 'https://staticcdn.co.nz')
-            ->addDirective(Directive::IMG, [
-                'https://shielded.co.nz',
-                'https://staticcdn.co.nz',
+            ->addDirective(Directive::SCRIPT, [
+                'staticcdn.co.nz',
             ])
-            ->addDirective(Directive::FRAME, 'https://staticcdn.co.nz');
+            ->addDirective(Directive::IMG, [
+                'shielded.co.nz',
+                'staticcdn.co.nz',
+            ])
+            ->addDirective(Directive::FONT, [
+                'staticcdn.co.nz',
+            ])
+            ->addDirective(Directive::FRAME, [
+                'staticcdn.co.nz',
+            ]);
     }
 }
