@@ -84,10 +84,20 @@ abstract class Policy
         return $this;
     }
 
+    /**
+     * Add reporting directives to the policy, so that violations can be sent to
+     * the uri defined as CSP_REPORT_TO in the environment.
+     *
+     * @param string $uri
+     * @return self
+     */
     public function reportTo(string $uri): self
     {
+        // Add the report-uri directive - this is deprecated, but still supported by most browsers
         $this->directives[Directive::REPORT] = [$uri];
-        $this->directives[Directive::REPORT_TO] = [$uri];
+
+        // Add the report-to directive - this is the new standard, but not yet supported by all browsers
+        $this->directives[Directive::REPORT_TO] = ['csp-endpoint'];
 
         return $this;
     }
@@ -108,6 +118,12 @@ abstract class Policy
         );
     }
 
+    /**
+     * Apply the CSP header to the response
+     *
+     * @param HTTPResponse $response
+     * @return void
+     */
     public function applyTo(HTTPResponse $response)
     {
         $this->configure();
@@ -125,6 +141,19 @@ abstract class Policy
         $reportTo = Environment::getEnv('CSP_REPORT_TO');
         if (!array_key_exists(Directive::REPORT, $this->directives) && $reportTo) {
             $this->reportTo($reportTo);
+        }
+
+        // Add the Report-To header, used by the report-to directive
+        if (array_key_exists(Directive::REPORT_TO, $this->directives) && $reportTo) {
+            $response->addHeader('Report-To', json_encode([
+                'group' => 'csp-endpoint',
+                'max_age' => 10886400,
+                'endpoints' => [
+                    [
+                        'url' => $reportTo,
+                    ],
+                ],
+            ]));
         }
 
         $response->addHeader($headerName, (string) $this);
