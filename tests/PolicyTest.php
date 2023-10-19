@@ -48,23 +48,246 @@ class PolicyTest extends SapphireTest
         $this->assertFalse($policy->shouldBeApplied($request, $response));
     }
 
-    public function testAReportURICanBeSet(): void
+    /**
+     * Check the reporting endpoint can be set from the environment variable
+     */
+    public function testAReportURICanBeSetFromEnvironmentVariable(): void
     {
         [$request, $response] = $this->getRequestResponse();
         /** @var Policy $policy */
         $policy = Injector::inst()->get(CMS::class);
 
-        Environment::setEnv('CSP_REPORT_TO', 'https://example.com');
+        $reportTo = 'https://example.com';
+        $reportTtl = 1234;
+        Environment::setEnv('CSP_REPORT_TO', $reportTo);
         Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
-        $policy->applyTo($response);
-        $this->assertContains('report-to https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
-        $this->assertContains('report-uri https://example.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+        Environment::setEnv('CSP_REPORT_TO_TTL', $reportTtl);
 
-        $policy->reportTo('https://silverstripe.com');
-        $response->removeHeader('Content-Security-Policy-Report-Only');
+        // apply the policy
         $policy->applyTo($response);
-        $this->assertContains('report-to https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
-        $this->assertContains('report-uri https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the header
+        $this->assertNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNotNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the report-uri directive
+        $this->assertStringContainsString(
+            sprintf('report-uri %s', $reportTo),
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the report-to directive
+        $this->assertStringContainsString(
+            'report-to csp-endpoint',
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the Report-To header
+        $this->assertNotNull($response->getHeader('Report-To'));
+        $this->assertStringContainsString(
+            sprintf(
+                '{"group":"csp-endpoint","max_age":%d,"endpoints":[{"url":"%s"}]}',
+                $reportTtl,
+                $reportTo
+            ),
+            $response->getHeader('Report-To')
+        );
+    }
+
+    /**
+     * Check the reporting endpoint is not output unless set in the environment variable
+     * or from code
+     */
+    public function testAReportURICanBeUnsetFromEnvironmentVariable(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNotNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the report-uri directive
+        $this->assertStringNotContainsString(
+            'report-uri',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the report-to directive
+        $this->assertStringNotContainsString(
+            'report-to',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the Report-To header
+        $this->assertNull($response->getHeader('Report-To'));
+    }
+
+    /**
+     * Check the reportTo() function works as expected
+     */
+    public function testAReportURICanBeSetFromCode(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+        Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
+
+        // change the policy
+        $reportTo = 'https://silverstripe.com';
+        $policy->reportTo($reportTo);
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNotNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the basic report-uri directive
+        $this->assertStringContainsString(
+            sprintf('report-uri %s', $reportTo),
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the more advanced report-to directive
+        $this->assertStringContainsString(
+            'report-to csp-endpoint',
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the Report-To header
+        $this->assertNotNull($response->getHeader('Report-To'));
+        $this->assertStringContainsString(
+            sprintf(
+                '{"group":"csp-endpoint","max_age":10886400,"endpoints":[{"url":"%s"}]}',
+                $reportTo
+            ),
+            $response->getHeader('Report-To')
+        );
+    }
+
+    /**
+     * Check the reportTo() function works as expected
+     */
+    public function testAReportURICanBeUnsetFromCode(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+
+        // change the policy to enable reporting
+        $reportTo = 'https://silverstripe.com';
+        $policy->reportTo($reportTo);
+
+        // now disable it
+        $policy->reportTo('');
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNotNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the basic report-uri directive
+        $this->assertStringNotContainsString(
+            'report-uri',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the more advanced report-to directive
+        $this->assertStringNotContainsString(
+            'report-to',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the Report-To header
+        $this->assertNull($response->getHeader('Report-To'));
+    }
+
+    /**
+     * Check we can set the report-uri, without the report-to directive
+     */
+    public function testAReportURICanBeSetWithoutReportTo(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+        Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
+
+        // change the policy
+        $reportTo = 'https://silverstripe.com';
+        $policy->addDirective(Directive::REPORT, $reportTo);
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNotNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the basic report-uri directive
+        $this->assertStringContainsString(
+            sprintf('report-uri %s', $reportTo),
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the more advanced report-to directive
+        $this->assertStringNotContainsString(
+            'report-to',
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the Report-To header
+        $this->assertNull($response->getHeader('Report-To'));
+    }
+
+    /**
+     * Check we can set the report-uri, without the report-to directive
+     */
+    public function testAReportToCanBeSetWithoutReportURI(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+
+        // change the policy
+        $reportTo = 'https://silverstripe.com';
+        $policy->addDirective(Directive::REPORT_TO, $reportTo);
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNotNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the basic report-uri directive
+        $this->assertStringNotContainsString(
+            'report-uri',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the more advanced report-to directive
+        $this->assertStringContainsString(
+            'report-to csp-endpoint',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the Report-To header
+        $this->assertNotNull($response->getHeader('Report-To'));
+        $this->assertStringContainsString(
+            sprintf(
+                '{"group":"csp-endpoint","max_age":10886400,"endpoints":[{"url":"%s"}]}',
+                $reportTo
+            ),
+            $response->getHeader('Report-To')
+        );
     }
 
     public function testIsCanUseMultipleValuesForTheSameDirective(): void
