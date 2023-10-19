@@ -291,6 +291,112 @@ class PolicyTest extends SapphireTest
         );
     }
 
+    /**
+     * Check the reporting endpoint can be set from the environment variable
+     */
+    public function testMultipleReportURICanBeSetFromEnvironmentVariable(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+
+        $reportTo = 'https://example.com,http://example.org,https://example.net';
+        Environment::setEnv('CSP_REPORT_TO', $reportTo);
+        Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNotNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // the report-uri directive only supports a single address,
+        // so we should not expect to see it
+        $this->assertStringNotContainsString(
+            'report-uri',
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the report-to directive
+        $this->assertStringContainsString(
+            'report-to csp-endpoint',
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+
+        // check the Report-To header
+        $this->assertNotNull($response->getHeader('Report-To'));
+
+        // convert the comma separated list into an array
+        $urls = explode(',', $reportTo);
+        $endpoints = [];
+        foreach ($urls as $url) {
+            $endpoints[] = ['url' => trim($url)];
+        }
+
+        $this->assertStringContainsString(
+            sprintf(
+                '{"group":"csp-endpoint","max_age":10886400,"endpoints":%s}',
+                json_encode($endpoints, JSON_UNESCAPED_SLASHES)
+            ),
+            $response->getHeader('Report-To')
+        );
+    }
+
+    /**
+     * Check the reporting endpoint can be set from the environment variable
+     */
+    public function testMultipleReportURICanBeSetFromCode(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+
+        $urls = [
+            'https://example.com',
+            'http://example.org',
+            'https://example.net',
+        ];
+        $policy->addDirective(Directive::REPORT_TO, $urls);
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNotNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // the report-uri directive only supports a single address,
+        // so we should not expect to see it
+        $this->assertStringNotContainsString(
+            'report-uri',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the report-to directive
+        $this->assertStringContainsString(
+            'report-to csp-endpoint',
+            $response->getHeader('Content-Security-Policy')
+        );
+
+        // check the Report-To header
+        $this->assertNotNull($response->getHeader('Report-To'));
+
+        // convert the comma separated list into an array
+        $endpoints = [];
+        foreach ($urls as $url) {
+            $endpoints[] = ['url' => trim($url)];
+        }
+
+        $this->assertStringContainsString(
+            sprintf(
+                '{"group":"csp-endpoint","max_age":10886400,"endpoints":%s}',
+                json_encode($endpoints, JSON_UNESCAPED_SLASHES)
+            ),
+            $response->getHeader('Report-To')
+        );
+    }
+
     public function testIsCanUseMultipleValuesForTheSameDirective(): void
     {
         $policy = new class extends Policy {
