@@ -172,7 +172,7 @@ abstract class Policy
                     : "{$directive} {$valueString}";
         }
 
-        return implode(';', $directives);
+        return implode('; ', $directives);
     }
 
     protected function guardAgainstInvalidDirectives(string $directive)
