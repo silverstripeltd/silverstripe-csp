@@ -31,7 +31,7 @@ class PolicyTest extends SapphireTest
         $policy->applyTo($response);
         $nonce = NonceGenerator::get();
         $expected = <<<TXT
-        base-uri 'self';connect-src 'self';default-src 'self';form-action 'self';img-src 'self';media-src 'self';object-src 'none';script-src 'self' 'nonce-$nonce';style-src 'self' 'nonce-$nonce';font-src 'self';upgrade-insecure-requests
+        base-uri 'self'; connect-src 'self'; default-src 'self'; form-action 'self'; img-src 'self'; media-src 'self'; object-src 'none'; script-src 'self' 'nonce-$nonce'; style-src 'self' 'nonce-$nonce'; font-src 'self'; upgrade-insecure-requests
         TXT;
         $this->assertEquals($expected, $response->getHeader('content-security-policy'));
         $this->assertEquals('Basic', $response->getHeader('csp-name'));
@@ -83,7 +83,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'frame-src src-1 src-2;form-action action-1 action-2',
+            'frame-src src-1 src-2; form-action action-1 action-2',
             $response->getHeader('content-security-policy')
         );
     }
@@ -103,7 +103,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'connect-src \'none\';frame-src src-1',
+            'connect-src \'none\'; frame-src src-1',
             $response->getHeader('content-security-policy')
         );
     }
@@ -123,7 +123,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'connect-src \'self\';frame-src src-1',
+            'connect-src \'self\'; frame-src src-1',
             $response->getHeader('content-security-policy')
         );
     }
@@ -251,7 +251,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'upgrade-insecure-requests;block-all-mixed-content',
+            'upgrade-insecure-requests; block-all-mixed-content',
             $response->getHeader('content-security-policy')
         );
     }
@@ -271,7 +271,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'img-src *.ytimg.com;script-src www.youtube.com s.ytimg.com player.vimeo.com;frame-src *.youtube.com player.vimeo.com;child-src player.vimeo.com',
+            'img-src *.ytimg.com; script-src www.youtube.com s.ytimg.com player.vimeo.com; frame-src *.youtube.com player.vimeo.com; child-src player.vimeo.com',
             $response->getHeader('content-security-policy')
         );
     }
