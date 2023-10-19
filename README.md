@@ -57,7 +57,9 @@ public function configure(): void
 ```
 _Usually you'll define `private const FRAGMENTS = []` and add them in there so it's clear at the beginning what fragments you're adding._
 
-To set the **report to**, we usually use an env var named `CSP_REPORT_TO`. You can also call `$this->reportTo()` in your policies configure func if required (perhaps you want the report URI based on the policy applied).
+To set the **report to** url, we usually use an env var named `CSP_REPORT_TO`. The expiry time can also be set using `CSP_REPORT_TO_TTL` this tells the browser how long it should remember the url for.
+
+You can also call `$this->reportTo()` in your policies configure func if required (perhaps you want the report URI based on the policy applied).
 
 To add the policy to the list of applied policies you'll want to add some yaml config:
 ```yaml
