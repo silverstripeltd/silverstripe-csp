@@ -262,6 +262,17 @@ abstract class Policy
 
         // if we have the environment variable, assume we want both directives
         if ($hasEnvironmentVariable) {
+            $hasMultipleUrls = str_contains($reportTo, ',');
+
+            // if we are handling multiple urls we need to only add a single directive
+            if ($hasMultipleUrls) {
+                $reportToArray = explode(',', $reportTo);
+                $this->directives[Directive::REPORT_TO] = $reportToArray;
+                $this->applyReportTo($response);
+                return;
+            }
+
+            // otherwise add both
             $this->reportTo($reportTo);
             $this->applyReportTo($response);
             return;
@@ -299,16 +310,40 @@ abstract class Policy
             return;
         }
 
+        // get the directive value
+        $reportTo = $this->directives[Directive::REPORT_TO];
+
+        // if the directive is not set, we can't add the header
+        if (is_null($reportTo) || $reportTo === false || $reportTo === '') {
+            return;
+        }
+
+        $endpoints = [];
+        foreach ($reportTo as $uri) {
+            // tidy up
+            $uri = trim($uri);
+
+            // if the value is not a url, we can't add the header
+            if (!filter_var($uri, FILTER_VALIDATE_URL)) {
+                continue;
+            }
+
+            // if the value is a url, we can use it as the endpoint
+            $endpoints[] = [
+                'url' => $uri,
+            ];
+        }
+
+        // if we don't have any endpoints, we can't add the header
+        if (count($endpoints) === 0) {
+            return;
+        }
+
         // set a standard group name to use
         $groupName = 'csp-endpoint';
 
-        // if the directive is set incorrectly as a url, use it for the endpoint instead
-        if (filter_var($this->directives[Directive::REPORT_TO][0], FILTER_VALIDATE_URL)) {
-            $reportTo = $this->directives[Directive::REPORT_TO][0];
-
-            // and set it correctly
-            $this->directives[Directive::REPORT_TO] = [$groupName];
-        }
+        // add the group name to the directive, replacing the invalid urls
+        $this->directives[Directive::REPORT_TO] = [$groupName];
 
         // set the amount of time the users-browser should store the endpoint
         $ttl = Environment::getEnv('CSP_REPORT_TO_TTL') ?: 10886400; // 126 days
@@ -317,11 +352,7 @@ abstract class Policy
         $response->addHeader('Report-To', json_encode([
             'group' => $groupName,
             'max_age' => $ttl,
-            'endpoints' => [
-                [
-                    'url' => $reportTo,
-                ],
-            ],
+            'endpoints' => $endpoints,
         ], JSON_UNESCAPED_SLASHES));
     }
 }

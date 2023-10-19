@@ -61,6 +61,8 @@ To set the **report to** url, we usually use an env var named `CSP_REPORT_TO`. T
 
 You can also call `$this->reportTo()` in your policies configure func if required (perhaps you want the report URI based on the policy applied).
 
+Reporting can be sent to multiple urls if required, `CSP_REPORT_TO` supports CSV, or the directive can be used with an array.
+
 To add the policy to the list of applied policies you'll want to add some yaml config:
 ```yaml
 Silverstripe\CSP\CSPMiddleware:
