@@ -3,6 +3,7 @@
 namespace Silverstripe\CSP\Fragments;
 
 use Silverstripe\CSP\Directive;
+use Silverstripe\CSP\Keyword;
 use Silverstripe\CSP\Policies\Policy;
 
 /**
@@ -12,6 +13,7 @@ class Hotjar implements Fragment
 {
     public static function addTo(Policy $policy): void
     {
+        // Set domains to be allowed for various directives
         $domains = [
             '*.hotjar.com',
             '*.hotjar.io',
@@ -23,5 +25,14 @@ class Hotjar implements Fragment
             ->addDirective(Directive::CONNECT, $domains)
             ->addDirective(Directive::FRAME, $domains)
             ->addDirective(Directive::FONT, $domains);
+
+        // Allow inline scripts
+        $policy->addDirective(Directive::SCRIPT, Keyword::UNSAFE_INLINE);
+
+        // Allow inline styles
+        $policy->addDirective(Directive::STYLE, Keyword::UNSAFE_INLINE);
+
+        // Allow web sockets
+        $policy->addDirective(Directive::CONNECT, 'wss://*.hotjar.com');
     }
 }
