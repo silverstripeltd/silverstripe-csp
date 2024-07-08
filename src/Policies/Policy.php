@@ -84,10 +84,10 @@ abstract class Policy
         return $this;
     }
 
-    public function reportTo(string $uri): self
+    public function reportTo(string $reportTo, string $reportToUri = ''): self
     {
-        $this->directives[Directive::REPORT] = [$uri];
-        $this->directives[Directive::REPORT_TO] = [$uri];
+        $this->directives[Directive::REPORT] = [$reportToUri ?? $reportTo];
+        $this->directives[Directive::REPORT_TO] = [$reportTo];
 
         return $this;
     }
@@ -123,8 +123,9 @@ abstract class Policy
         }
 
         $reportTo = Environment::getEnv('CSP_REPORT_TO');
+        $reportToUri = Environment::getEnv('CSP_REPORT_TO_URI');
         if (!array_key_exists(Directive::REPORT, $this->directives) && $reportTo) {
-            $this->reportTo($reportTo);
+            $this->reportTo($reportTo, $reportToUri);
         }
 
         $response->addHeader($headerName, (string) $this);

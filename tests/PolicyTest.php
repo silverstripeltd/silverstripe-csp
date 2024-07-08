@@ -65,6 +65,12 @@ class PolicyTest extends SapphireTest
         $policy->applyTo($response);
         $this->assertContains('report-to https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
         $this->assertContains('report-uri https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+
+        $policy->reportTo('https://silverstripe.com', 'https://silverstripe.com/uri');
+        $response->removeHeader('Content-Security-Policy-Report-Only');
+        $policy->applyTo($response);
+        $this->assertContains('report-to https://silverstripe.com', $response->getHeader('Content-Security-Policy-Report-Only'));
+        $this->assertContains('report-uri https://silverstripe.com/uri', $response->getHeader('Content-Security-Policy-Report-Only'));
     }
 
     public function testIsCanUseMultipleValuesForTheSameDirective(): void
