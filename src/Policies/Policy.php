@@ -84,9 +84,28 @@ abstract class Policy
         return $this;
     }
 
+    /**
+     * Add reporting directives to the policy, so that violations can be sent to
+     * the uri defined as CSP_REPORT_TO in the environment.
+     *
+     * @param string $uri - the uri to send the reports to, or empty to remove reporting
+     * @return self
+     */
     public function reportTo(string $uri): self
     {
+        // if the string is empty, we can assume we need to _remove_ reporting
+        if (empty($uri)) {
+            unset($this->directives[Directive::REPORT]);
+            unset($this->directives[Directive::REPORT_TO]);
+
+            return $this;
+        }
+
+        // Add the report-uri directive - this is deprecated, but still supported by most browsers
         $this->directives[Directive::REPORT] = [$uri];
+
+        // Add the report-to directive - this is the new standard, but not yet supported by all browsers
+        // the syntax for this will be fixed when the header is added
         $this->directives[Directive::REPORT_TO] = [$uri];
 
         return $this;
@@ -108,6 +127,12 @@ abstract class Policy
         );
     }
 
+    /**
+     * Apply the CSP header to the response
+     *
+     * @param HTTPResponse $response
+     * @return void
+     */
     public function applyTo(HTTPResponse $response)
     {
         $this->configure();
@@ -122,10 +147,8 @@ abstract class Policy
             return;
         }
 
-        $reportTo = Environment::getEnv('CSP_REPORT_TO');
-        if (!array_key_exists(Directive::REPORT, $this->directives) && $reportTo) {
-            $this->reportTo($reportTo);
-        }
+        // optionally add reporting directives
+        $this->applyReporting($response);
 
         $response->addHeader($headerName, (string) $this);
         $response->addHeader('csp-name', ClassInfo::shortName(static::class));
@@ -143,7 +166,34 @@ abstract class Policy
                     : "{$directive} {$valueString}";
         }
 
-        return implode(';', $directives);
+        return implode('; ', $directives);
+    }
+
+    /*
+     * Takes an array of `Fragment` implementations and adds them to the policy
+     */
+    public function addFragments(array $fragments): self
+    {
+        foreach ($fragments as $fragment) {
+            call_user_func_array([$fragment, 'addTo'], [$this]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * If the given value is not an array and not null, wrap it in one.
+     *
+     * @param  mixed  $value
+     * @return array
+     */
+    public static function wrap($value): array
+    {
+        if (is_null($value)) {
+            return [];
+        }
+
+        return is_array($value) ? $value : [$value];
     }
 
     protected function guardAgainstInvalidDirectives(string $directive)
@@ -196,30 +246,112 @@ abstract class Policy
         return $value;
     }
 
-    /*
-     * Takes an array of `Fragment` implementations and adds them to the policy
+    /**
+     * Add the reporting directives to the policy if the address is set
+     * as an environment variable.
+     *
+     * @param HTTPResponse $response - the response to add the header to
+     * @return void
      */
-    public function addFragments(array $fragments): self
+    private function applyReporting(HTTPResponse $response): void
     {
-        foreach ($fragments as $fragment) {
-            call_user_func_array([$fragment, 'addTo'], [$this]);
+        $reportTo = Environment::getEnv('CSP_REPORT_TO');
+
+        $hasEnvironmentVariable = !is_null($reportTo) && $reportTo !== false;
+
+        // if we have the environment variable, assume we want both directives
+        if ($hasEnvironmentVariable) {
+            $hasMultipleUrls = str_contains($reportTo, ',');
+
+            // if we are handling multiple urls we need to only add a single directive
+            if ($hasMultipleUrls) {
+                $reportToArray = explode(',', $reportTo);
+                $this->directives[Directive::REPORT_TO] = $reportToArray;
+                $this->applyReportTo($response);
+                return;
+            }
+
+            // otherwise add both
+            $this->reportTo($reportTo);
+            $this->applyReportTo($response);
+            return;
         }
 
-        return $this;
+        // if we don't have the environment variable,
+        // check if we have the directives manually set
+        $hasReportDirective = array_key_exists(Directive::REPORT, $this->directives);
+        $hasReportToDirective = array_key_exists(Directive::REPORT_TO, $this->directives);
+
+        // no directives, no further processing needed
+        if (!$hasReportDirective && !$hasReportToDirective) {
+            return;
+        }
+
+        // if the report-to directive is set, we need to add the header and process the value
+        if ($hasReportToDirective) {
+            $this->applyReportTo($response);
+            return;
+        }
     }
 
     /**
-     * If the given value is not an array and not null, wrap it in one.
+     * Add the necessary extras for the report-to directive
      *
-     * @param  mixed  $value
-     * @return array
+     * @param HTTPResponse $response - the response to add the header to
+     * @return void
      */
-    public static function wrap($value): array
+    private function applyReportTo(HTTPResponse $response): void
     {
-        if (is_null($value)) {
-            return [];
+        $hasReportToDirective = array_key_exists(Directive::REPORT_TO, $this->directives);
+
+        // if the environment variable is not set, and the directive is not set, we can't add the header
+        if (!$hasReportToDirective) {
+            return;
         }
 
-        return is_array($value) ? $value : [$value];
+        // get the directive value
+        $reportTo = $this->directives[Directive::REPORT_TO];
+
+        // if the directive is not set, we can't add the header
+        if (is_null($reportTo) || $reportTo === false || $reportTo === '') {
+            return;
+        }
+
+        $endpoints = [];
+        foreach ($reportTo as $uri) {
+            // tidy up
+            $uri = trim($uri);
+
+            // if the value is not a url, we can't add the header
+            if (!filter_var($uri, FILTER_VALIDATE_URL)) {
+                continue;
+            }
+
+            // if the value is a url, we can use it as the endpoint
+            $endpoints[] = [
+                'url' => $uri,
+            ];
+        }
+
+        // if we don't have any endpoints, we can't add the header
+        if (count($endpoints) === 0) {
+            return;
+        }
+
+        // set a standard group name to use
+        $groupName = 'csp-endpoint';
+
+        // add the group name to the directive, replacing the invalid urls
+        $this->directives[Directive::REPORT_TO] = [$groupName];
+
+        // set the amount of time the users-browser should store the endpoint
+        $ttl = Environment::getEnv('CSP_REPORT_TO_TTL') ?: 10886400; // 126 days
+
+        // add the reponse header
+        $response->addHeader('Report-To', json_encode([
+            'group' => $groupName,
+            'max_age' => $ttl,
+            'endpoints' => $endpoints,
+        ], JSON_UNESCAPED_SLASHES));
     }
 }
