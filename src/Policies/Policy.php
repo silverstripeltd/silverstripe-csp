@@ -91,7 +91,7 @@ abstract class Policy
      * @param string $uri - the uri to send the reports to, or empty to remove reporting
      * @return self
      */
-    public function reportTo(string $uri): self
+    public function reportTo(string $uri, string $reportToUri = ''): self
     {
         // if the string is empty, we can assume we need to _remove_ reporting
         if (empty($uri)) {
@@ -102,7 +102,7 @@ abstract class Policy
         }
 
         // Add the report-uri directive - this is deprecated, but still supported by most browsers
-        $this->directives[Directive::REPORT] = [$uri];
+        $this->directives[Directive::REPORT] = [$reportToUri ?: $uri];
 
         // Add the report-to directive - this is the new standard, but not yet supported by all browsers
         // the syntax for this will be fixed when the header is added
@@ -257,6 +257,7 @@ abstract class Policy
     private function applyReporting(HTTPResponse $response): void
     {
         $reportTo = Environment::getEnv('CSP_REPORT_TO');
+        $reportToUri = Environment::getEnv('CSP_REPORT_TO_URI');
 
         $hasEnvironmentVariable = !is_null($reportTo) && $reportTo !== false;
 
@@ -273,7 +274,7 @@ abstract class Policy
             }
 
             // otherwise add both
-            $this->reportTo($reportTo);
+            $this->reportTo($reportTo, $reportToUri);
             $this->applyReportTo($response);
             return;
         }

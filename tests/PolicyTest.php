@@ -95,6 +95,38 @@ class PolicyTest extends SapphireTest
     }
 
     /**
+     * Check report-uri endpoint can override report-to endpoint if environment variable is set
+     * @return void
+     */
+    public function testReportURICanOverrideReportTo(): void
+    {
+        [$request, $response] = $this->getRequestResponse();
+        /** @var Policy $policy */
+        $policy = Injector::inst()->get(CMS::class);
+
+        $reportTo = 'https://example.com';
+        $reportUri = 'https://emaple.com/deprecated-endpoint';
+        $reportTtl = 1234;
+        Environment::setEnv('CSP_REPORT_TO', $reportTo);
+        Environment::setEnv('CSP_REPORT_TO_URI', $reportUri);
+        Environment::setEnv('CSP_REPORT_ONLY', 'enabled');
+        Environment::setEnv('CSP_REPORT_TO_TTL', $reportTtl);
+
+        // apply the policy
+        $policy->applyTo($response);
+
+        // check the header
+        $this->assertNull($response->getHeader('Content-Security-Policy'));
+        $this->assertNotNull($response->getHeader('Content-Security-Policy-Report-Only'));
+
+        // check the report-uri directive
+        $this->assertStringContainsString(
+            sprintf('report-uri %s', $reportUri),
+            $response->getHeader('Content-Security-Policy-Report-Only')
+        );
+    }
+
+    /**
      * Check the reporting endpoint is not output unless set in the environment variable
      * or from code
      */
