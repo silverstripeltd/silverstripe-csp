@@ -3,11 +3,11 @@
 namespace Silverstripe\CSP\Requirements;
 
 use SilverStripe\Core\Config\Configurable;
-use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DataObjectSchema;
 use SilverStripe\ORM\DB;
+use SilverStripe\Core\Extension;
 
-class DevBuildExtension extends DataExtension
+class DevBuildExtension extends Extension
 {
     use Configurable;
 
