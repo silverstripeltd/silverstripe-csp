@@ -25,6 +25,9 @@ class WomensRefugeShield implements Fragment
             ])
             ->addDirective(Directive::FRAME, [
                 'staticcdn.co.nz',
+            ])
+            ->addDirective(Directive::SCRIPT_ELEM, [
+                'staticcdn.co.nz',
             ]);
     }
 }
