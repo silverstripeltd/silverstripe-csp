@@ -555,6 +555,7 @@ class PolicyTest extends SapphireTest
                     Scheme::DATA,
                     Scheme::HTTPS,
                     Scheme::WS,
+                    Scheme::WSS,
                 ]);
             }
         };
@@ -562,7 +563,7 @@ class PolicyTest extends SapphireTest
         [$request, $response] = $this->getRequestResponse();
         $policy->applyTo($response);
         $this->assertEquals(
-            'img-src data: https: ws:',
+            'img-src data: https: ws: wss:',
             $response->getHeader('content-security-policy')
         );
     }
