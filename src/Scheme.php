@@ -9,4 +9,5 @@ abstract class Scheme
     public const HTTPS = 'https:';
     public const BLOB = 'blob:';
     public const WS = 'ws:';
+    public const WSS = 'wss:';
 }
