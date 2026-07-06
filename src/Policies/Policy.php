@@ -10,7 +10,7 @@ use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injectable;
 use Silverstripe\CSP\Directive;
 use Silverstripe\CSP\Keyword;
-use Silverstripe\CSP\NonceGenerator;
+use Silverstripe\CSP\Nonce\NonceGenerator;
 use Silverstripe\CSP\Value;
 
 abstract class Policy

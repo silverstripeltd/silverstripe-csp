@@ -1,6 +1,6 @@
 <?php
 
-namespace Silverstripe\CSP;
+namespace Silverstripe\CSP\Nonce;
 
 class RandomString extends NonceGenerator
 {

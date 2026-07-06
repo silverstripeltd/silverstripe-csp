@@ -10,7 +10,7 @@ use Silverstripe\CSP\Directive;
 use Silverstripe\CSP\Fragments\Vimeo;
 use Silverstripe\CSP\Fragments\YouTube;
 use Silverstripe\CSP\Keyword;
-use Silverstripe\CSP\NonceGenerator;
+use Silverstripe\CSP\Nonce\NonceGenerator;
 use Silverstripe\CSP\Policies\Basic;
 use Silverstripe\CSP\Policies\CMS;
 use Silverstripe\CSP\Policies\Policy;
