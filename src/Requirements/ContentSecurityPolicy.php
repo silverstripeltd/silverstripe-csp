@@ -2,7 +2,7 @@
 
 namespace Silverstripe\CSP\Requirements;
 
-use Silverstripe\CSP\NonceGenerator;
+use Silverstripe\CSP\Nonce\NonceGenerator;
 
 trait ContentSecurityPolicy
 {
