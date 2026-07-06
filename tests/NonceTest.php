@@ -2,7 +2,7 @@
 
 namespace Silverstripe\CSP\Tests;
 
-use Silverstripe\CSP\NonceGenerator;
+use Silverstripe\CSP\Nonce\NonceGenerator;
 use SilverStripe\Dev\SapphireTest;
 
 class NonceTest extends SapphireTest

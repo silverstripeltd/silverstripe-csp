@@ -1,6 +1,6 @@
 <?php
 
-namespace Silverstripe\CSP;
+namespace Silverstripe\CSP\Nonce;
 
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\View\TemplateGlobalProvider;
