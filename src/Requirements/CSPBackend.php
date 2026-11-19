@@ -16,6 +16,36 @@ class CSPBackend extends Requirements_Backend
     use ContentSecurityPolicy;
 
     /**
+     * Attributes given to customScriptWithAttributes(), keyed like the custom scripts.
+     * Requirements_Backend keeps its own copy private, so it is tracked here as well.
+     */
+    private array $customScriptTagAttributes = [];
+
+    /**
+     * @inheritDoc
+     */
+    public function customScript($script, $uniquenessID = null)
+    {
+        if ($uniquenessID) {
+            unset($this->customScriptTagAttributes[$uniquenessID]);
+        }
+        parent::customScript($script, $uniquenessID);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function customScriptWithAttributes(
+        string $script,
+        array $attributes = [],
+        string|int|null $uniquenessID = null
+    ) {
+        parent::customScriptWithAttributes($script, $attributes, $uniquenessID);
+        $key = $uniquenessID ?: array_key_last($this->customScript);
+        $this->customScriptTagAttributes[$key] = $attributes;
+    }
+
+    /**
      * Good old monolithic functions...
      * EDITED: A comment should sit above anything changed mentioning what changed and why
      *         it will start with `EDITED`
@@ -68,18 +98,24 @@ class CSPBackend extends Requirements_Backend
         }
 
         // Add all inline JavaScript *after* including external files they might rely on
-        foreach ($this->getCustomScripts() as $script) {
+        foreach ($this->getCustomScriptsWithNonce() as $key => $script) {
             $src = $script['src'];
+            /**
+             * EDITED: We added in the nonce here, on top of the attributes given to
+             *         customScriptWithAttributes(), with a default type
+             *         @see CSPBackend::getCustomScriptsWithNonce
+             */
+            $htmlAttributes = array_merge(
+                ['type' => 'application/javascript'],
+                $this->customScriptTagAttributes[$key] ?? []
+            );
+            $htmlAttributes['nonce'] = $script['nonce'];
             $jsRequirements .= HTML::createTag(
                 'script',
-                // EDITED: We added in the nonce here
-                [
-                    'type' => 'application/javascript',
-                    'nonce' => $script['nonce'],
-                ],
+                $htmlAttributes,
                 /**
                  * EDITED: We added in the script src here (was just `$script` before)
-                 *         @see CSPBackend::getCustomScripts
+                 *         @see CSPBackend::getCustomScriptsWithNonce
                  */
                 "//<![CDATA[\n{$src}\n//]]>"
             );
@@ -107,10 +143,10 @@ class CSPBackend extends Requirements_Backend
         }
 
         // Literal custom CSS content
-        foreach ($this->getCustomCSS() as $css) {
+        foreach ($this->getCustomCSSWithNonce() as $css) {
             /**
              * EDITED: We added in the script src (was just `$css` before) and nonce
-             *         @see CSPBackend::getCustomCSS
+             *         @see CSPBackend::getCustomCSSWithNonce
              */
             $requirements .= HTML::createTag(
                 'style',

@@ -6,17 +6,22 @@ use Silverstripe\CSP\Nonce\NonceGenerator;
 
 trait ContentSecurityPolicy
 {
-    /*
-     * We're adding in the nonces to the custom scripts
+    /**
+     * The custom scripts with the nonce they are written with, as `['nonce' => ..., 'src' => ...]`
+     * arrays. getCustomScripts() keeps the framework's return type (script strings).
      */
-    public function getCustomScripts(): array
+    public function getCustomScriptsWithNonce(): array
     {
-        return $this->addNonceToArray(parent::getCustomScripts());
+        return $this->addNonceToArray($this->getCustomScripts());
     }
 
-    public function getCustomCSS(): array
+    /**
+     * The custom CSS with the nonce it is written with, as `['nonce' => ..., 'src' => ...]`
+     * arrays. getCustomCSS() keeps the framework's return type (CSS strings).
+     */
+    public function getCustomCSSWithNonce(): array
     {
-        return $this->addNonceToArray(parent::getCustomCSS());
+        return $this->addNonceToArray($this->getCustomCSS());
     }
 
     private function addNonceToArray(array $sources): array
